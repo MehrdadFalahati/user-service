@@ -8,6 +8,7 @@ import com.github.mehrdadfalahati.entity.meta.Pair;
 import com.github.mehrdadfalahati.entity.meta.TableMetaInfo;
 import com.github.mehrdadfalahati.exception.OrmMetaDataException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 
@@ -22,6 +23,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @RequiredArgsConstructor
 public class OrmMetaDataServiceImpl implements OrmMetaDataService {
     private final OrmService ormService;
@@ -33,7 +35,7 @@ public class OrmMetaDataServiceImpl implements OrmMetaDataService {
         var enhancer = new Enhancer();
         enhancer.setSuperclass(objectClass);
         enhancer.setCallback((MethodInterceptor) (obj, method, args1, proxy) -> proxy.invokeSuper(obj, args1));
-        System.out.println("init proxy object " +  objectClass.getSimpleName());
+        log.info("init proxy object {}", objectClass.getSimpleName());
         return (T) enhancer.create();
 
     }

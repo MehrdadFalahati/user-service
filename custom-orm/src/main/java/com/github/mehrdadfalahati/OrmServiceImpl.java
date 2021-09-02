@@ -5,6 +5,7 @@ import com.github.mehrdadfalahati.entity.OrmMetaDataServiceImpl;
 import com.github.mehrdadfalahati.entity.meta.BeanFieldInfo;
 import com.github.mehrdadfalahati.entity.meta.TableMetaInfo;
 import com.github.mehrdadfalahati.exception.OrmServiceException;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class OrmServiceImpl implements OrmService {
     private DataSource dataSource;
     private OrmMetaDataService metaDataService = new OrmMetaDataServiceImpl(this);
@@ -54,7 +56,7 @@ public class OrmServiceImpl implements OrmService {
                     result.add(metaDataService.resultSetToObject(resultSet, objectClass));
                 }
             }
-            System.out.println("exec sql "+ sql);
+            log.info("exec sql {}", sql);
         } catch (SQLException e) {
             throw new OrmServiceException(e);
         }
@@ -74,7 +76,7 @@ public class OrmServiceImpl implements OrmService {
 
             metaDataService.fillPreparedStatement(preparedStatement, values);
             preparedStatement.executeUpdate();
-            System.out.println("exec sql "+ sql);
+            log.info("exec sql {}", sql);
 
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -133,7 +135,7 @@ public class OrmServiceImpl implements OrmService {
                  var preparedStatement = connection.prepareStatement(sql)) {
                 metaDataService.fillPreparedStatement(preparedStatement, values);
                 if (preparedStatement.executeUpdate() != 0) {
-                    System.out.println("exec sql "+ sql);
+                    log.info("exec sql {}", sql);
                     return true;
                 }
             } catch (SQLException e) {
@@ -157,7 +159,7 @@ public class OrmServiceImpl implements OrmService {
             if (tableInfo.getIdRow() != null) {
                 preparedStatement.setObject(1, tableInfo.getIdRow().getSecond().getGetter().invoke(object));
                 if (preparedStatement.executeUpdate() != 0) {
-                    System.out.println("exec sql "+ sql);
+                    log.info("exec sql {}", sql);
                     return true;
                 }
             }
@@ -177,7 +179,7 @@ public class OrmServiceImpl implements OrmService {
         try (var connection = dataSource.getConnection();
              var preparedStatement = connection.prepareStatement(sql)) {
             if (preparedStatement.executeUpdate() != 0) {
-                System.out.println("exec sql " + sql);
+                log.info("exec sql {}", sql);
                 return true;
             }
         } catch (SQLException e) {
